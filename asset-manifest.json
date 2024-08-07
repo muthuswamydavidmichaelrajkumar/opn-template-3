@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/opn-template-3/static/css/main.65034b71.css",
+    "main.js": "/opn-template-3/static/js/main.778b96e2.js",
+    "static/js/453.5571f252.chunk.js": "/opn-template-3/static/js/453.5571f252.chunk.js",
+    "index.html": "/opn-template-3/index.html",
+    "main.65034b71.css.map": "/opn-template-3/static/css/main.65034b71.css.map",
+    "main.778b96e2.js.map": "/opn-template-3/static/js/main.778b96e2.js.map",
+    "453.5571f252.chunk.js.map": "/opn-template-3/static/js/453.5571f252.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.65034b71.css",
+    "static/js/main.778b96e2.js"
+  ]
+}
