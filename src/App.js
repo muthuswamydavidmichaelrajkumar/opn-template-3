@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { FiSearch, FiUser, FiChevronDown, FiChevronRight, FiStar, FiMenu } from 'react-icons/fi';
 
-const TopBar = ({ activePage, toggleSidebar }) => (
+const TopBar = ({ activePage, activeSubPage, toggleSidebar }) => (
   <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex justify-between items-center">
     <div className="flex items-center">
       <button onClick={toggleSidebar} className="mr-4 lg:hidden">
         <FiMenu size={24} />
       </button>
       <h1 className="text-2xl font-bold mr-4">Opn Docs</h1>
-      <span className="text-blue-200 hidden sm:inline">{activePage}</span>
+      <span className="text-blue-200 hidden sm:inline">{activePage} {activeSubPage ? `- ${activeSubPage}` : ''}</span>
     </div>
     <div className="flex items-center">
       <div className="relative mr-4 hidden sm:block">
@@ -26,13 +26,16 @@ const TopBar = ({ activePage, toggleSidebar }) => (
   </div>
 );
 
-const SidebarItem = ({ item, children, depth = 0 }) => {
+const SidebarItem = ({ item, children, depth = 0, onItemClick }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className={`ml-${depth * 4}`}>
       <div
         className="flex items-center cursor-pointer p-2 hover:bg-gray-200 rounded transition duration-300"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          onItemClick(item);
+        }}
       >
         {children && (
           isOpen ? <FiChevronDown className="text-blue-600" /> : <FiChevronRight className="text-blue-600" />
@@ -44,7 +47,7 @@ const SidebarItem = ({ item, children, depth = 0 }) => {
   );
 };
 
-const Sidebar = ({ activePage, isOpen }) => {
+const Sidebar = ({ activePage, isOpen, onItemClick }) => {
   const sidebarData = {
     Documents: {
       Guides: {
@@ -92,7 +95,7 @@ const Sidebar = ({ activePage, isOpen }) => {
 
   const renderSidebarItems = (items, depth = 0) => {
     return Object.entries(items).map(([key, value]) => (
-      <SidebarItem key={key} item={key} depth={depth}>
+      <SidebarItem key={key} item={key} depth={depth} onItemClick={onItemClick}>
         {typeof value === 'object' ? renderSidebarItems(value, depth + 1) : null}
       </SidebarItem>
     ));
@@ -105,7 +108,7 @@ const Sidebar = ({ activePage, isOpen }) => {
   );
 };
 
-const MainContent = ({ activePage }) => {
+const MainContent = ({ activePage, activeSubPage }) => {
   const [rating, setRating] = useState(0);
   const [overallRating, setOverallRating] = useState(4.5);
   const [comments, setComments] = useState([
@@ -138,7 +141,7 @@ const MainContent = ({ activePage }) => {
   return (
     <div className="p-6 bg-white">
       <div className="mb-6">
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">{activePage}</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">{activeSubPage || activePage}</h2>
         <div className="flex flex-wrap gap-2 mb-4">
           {activePage === 'Documents' && (
             <select className="p-2 border rounded bg-white text-gray-800">
@@ -155,7 +158,7 @@ const MainContent = ({ activePage }) => {
           )}
         </div>
         <div className="prose max-w-none">
-          <p>Content for {activePage} goes here...</p>
+          <p>Content for {activeSubPage || activePage} goes here...</p>
         </div>
       </div>
 
@@ -210,25 +213,39 @@ const MainContent = ({ activePage }) => {
 
 const OpnDocsUI = () => {
   const [activePage, setActivePage] = useState('Documents');
+  const [activeSubPage, setActiveSubPage] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const mainMenuItems = ['Documents', 'Articles', 'FAQs', 'API Playground', 'Changelog'];
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+  const handleSidebarItemClick = (item) => {
+    setActiveSubPage(item);
+  };
+
   return (
     <div className="flex flex-col h-screen">
-      <TopBar activePage={activePage} toggleSidebar={toggleSidebar} />
+      <TopBar activePage={activePage} activeSubPage={activeSubPage} toggleSidebar={toggleSidebar} />
       <div className="flex-1 flex overflow-hidden">
         <div className="lg:block">
-          {activePage !== 'API Playground' && <Sidebar activePage={activePage} isOpen={isSidebarOpen} />}
+          {activePage !== 'API Playground' && (
+            <Sidebar 
+              activePage={activePage} 
+              isOpen={isSidebarOpen} 
+              onItemClick={handleSidebarItemClick}
+            />
+          )}
         </div>
         <div className="flex-1 overflow-y-auto">
           <div className="bg-gray-200 p-4">
             {mainMenuItems.map((item) => (
               <button
                 key={item}
-                onClick={() => setActivePage(item)}
+                onClick={() => {
+                  setActivePage(item);
+                  setActiveSubPage('');
+                }}
                 className={`mr-2 px-3 py-1 rounded ${
                   activePage === item ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 hover:bg-blue-100'
                 } transition duration-300`}
@@ -237,7 +254,7 @@ const OpnDocsUI = () => {
               </button>
             ))}
           </div>
-          <MainContent activePage={activePage} />
+          <MainContent activePage={activePage} activeSubPage={activeSubPage} />
         </div>
       </div>
     </div>
